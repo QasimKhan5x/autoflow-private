@@ -1,0 +1,83 @@
+{
+    "code2nl": [
+        "What does this code do?",
+        "Explain this piece of code",
+        "Explain what this function is doing",
+        "Convert code to natural language"
+    ],
+    "fix_bugs": [
+        "Fix bugs in this code",
+        "Solve the issues and/or errors in the above code",
+        "Propose a solution for the bugs in this code"
+    ],
+    "get_api_request_code": [
+        "Send an API Request",
+        "Fetch data from an API",
+        "Use an API to do something"
+    ],
+    "get_error_explanation": [
+        "Explain why the above code doesn't work",
+        "Run diagnostics for the above code",
+        "Why doesn't this code work",
+        "Check this code for issues",
+        "Find bugs in this code"
+    ],
+    "nl2sql": [
+        "Generate an SQL Query",
+        "Write a query to perform this task",
+        "Write SQL that does this"
+    ],
+    "sql2nl": [
+        "Explain this SQL Query",
+        "Write documentation for this SQL",
+        "Tell me what does query does",
+        "What does this query do"
+    ],
+    "code2docstring": [
+        "Write documentation for this code",
+        "Document the provided code",
+        "Write a docstring for this function"
+    ],
+    "get_oneliner": [
+        "Convert this function to one line of code",
+        "Write a oneliner for a function",
+        "Do this in one line only"
+    ],
+    "code2ut": [
+        "Write unit tests for this code",
+        "Generate assertions for this function",
+        "Write a set of assert statements or tests for this code"
+    ],
+    "complete_code": [
+        "Complete an incomplete portion of code",
+        "Fill up what's left for this code",
+        "Generate the remaining portion",
+        "Write the missing parts",
+        "Autocomplete the remaining code"
+    ],
+    "generate_code": [
+        "Write a function that performs a particular task",
+        "Generate code to do something",
+        "Write the code for a class that does something"
+    ],
+    "refactor": [
+        "Refactor this code",
+        "Refine this function",
+        "Improve the program that does a task"
+    ],
+    "defects": [
+        "Detect defects in this function",
+        "Find any vulnerabilities in this code",
+        "Is there a problem in the code?"
+    ],
+    "commit": [
+        "Commit this code",
+        "Generate a commit message",
+        "Suggest a git commit message"
+    ],
+    "search": [
+        "Search for a function",
+        "Where is this code located?",
+        "Find a piece of code"
+    ]
+}

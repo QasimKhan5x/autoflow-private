@@ -1,20 +1,12 @@
 import argparse
+import json
 
 import torch
 from sentence_transformers import SentenceTransformer, util
 
-task2prompt = {
-    'code2nl': ["What does this code do?", "Explain this piece of code", "Explain what this function is doing", "Explanation of the above in human readable format"],
-    'fix_bugs': ["Fix bugs in this code", "Solve the issues and/or errors in the above code", "Propose a solution for the bugs in this code"],
-    'get_api_request_code': ["Send an API Request", "Fetch data from an API", "Use an API to do something"],
-    'get_error_explanation': ["Explain why the above code doesn't work", "Run diagnostics for the above code", "Why doesn't this code work", "Check this code for issues like bugs"],
-    'nl2sql': ["Generate an SQL Query to do this", "Write a query to perform this task", "Write SQL that does this"],
-    'sql2nl': ["Explain the following SQL Query", "Write documentation for this SQL", "Tell me what does query does"],
-    'code2docstring': ["Write documentation for this code", "Document the provided code", "Write a docstring for this function"],
-    'get_oneliner': ["Convert and rewrite this function to one line of code", "Write a oneliner for a function", "Do this in one line only"],
-    'code2ut': ["Write unit tests for this code", "Generate assertions for this function", "Write a set of assert statements or tests for this code"],
-    'complete_code': ["Complete an incomplete portion of code", "Fill up what's left for this code", "Generate the remaining portion", "Write what's left"]
-}
+# intents
+with open("task2prompt.json") as f:
+    task2prompt = json.load(f)
 
 prompt2task = {
     prompt: task for task in task2prompt for prompt in task2prompt[task]}
@@ -33,8 +25,11 @@ def get_most_similar(query, corpus_embeddings, top_k):
     the query string
     '''
     with torch.no_grad():
+        # generate query embedding
         query_embedding = embedder.encode(
-            query, convert_to_tensor=True).to(device)
+            query, convert_to_tensor=True)
+        # move to device
+        query_embedding = query_embedding.to(device)  # type: ignore
     # Find the closest top_k sentences of the corpus for each query sentence based on cosine similarity
     hits = util.semantic_search(
         query_embedding, corpus_embeddings, top_k=top_k)
