@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from classify_intent import get_task_from_query
 from code_gen import iteratively_request_code
-from nl2codes import search_for_code
+from search_code import search_for_code
 from refactor_and_defect import detect_defect, refine
 from server_models import (API_Req, Code_Task, IntentAnalysis, Prompt,
                            Prompt_Language, QueryInfo, SearchCode)

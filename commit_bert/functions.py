@@ -118,7 +118,6 @@ def tokenized_list_from_diff(diffs):
     added, deleted = [], []
     isadded, isdeleted = False, False
     idx = -1
-    print(type(diffs))
     for idx, example in enumerate(whatthepatch.parse_patch(diffs)):
         if not example.changes:
             continue
