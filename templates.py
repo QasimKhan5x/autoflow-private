@@ -27,21 +27,37 @@ def get_comment(language, ml=True):
 
 
 def get_api_template(api_name, task, params, token=None):
-    template = f'"""\n'
-    template += f'Send a request to the {api_name} API to {task} using the following parameters:\n'
-    if type(params) != str:
+    # few shot learning
+    template = '"""Send a request to the Open Notify API '
+    template += 'to GET an estimate for when the ISS will fly over a specified point.\n'''
+    template += 'Use the following parameters:\n'
+    template += '''lat: "45"
+lon: "180"\n"""\n'''
+    template += '''query = {'lat':'45', 'lon':'180'}
+response = requests.get("http://api.open-notify.org/iss-pass.json", params=query)
+print(response.json())\n\n'''
+    template += '"""Send a request to the google maps API to get the geocordinates of a location.\n'
+    template += 'Use the following parameters:\n'
+    template += 'address: "1600 Amphitheatre Parkway, Mountain View, CA"\n"""\n'''
+    template += '''query = {'address':'1600 Amphitheatre Parkway, Mountain View, CA'}
+response = requests.get("http://maps.googleapis.com/maps/api/geocode/json", params=query)
+print(response.json())\n\n'''
+    # user provided parameters'
+    template += f'"""Send a request to the {api_name} API to {task}.\n'
+    template += 'Use the following parameters:\n'
+    if not isinstance(params, str):
         params = json.dumps(params)
     template += params + "\n"
     if token:
-        template += f"Use the following API token header: {token}\n"
-    template += '"""'
+        template += f"Use the following API token header:\n{token}\n"
+    template += '"""\nquery ='
     return template
 
 
 def get_api_request_code(api_name, task, params, token=None):
     prompt = get_api_template(api_name, task, params, token)
-    code = iteratively_request_code(prompt, max_tokens=64, temperature=0.2,
-                                    presence_penalty=0.5, frequency_penalty=0.5,
+    code = iteratively_request_code(prompt, max_tokens=128, temperature=0.2,
+                                    presence_penalty=0.3, frequency_penalty=0.4,
                                     stop=['"""', '\n\n\n'])
     return code
 
@@ -470,5 +486,5 @@ def complete_code(code, task=''):
     else:
         temperature = 0.2
     code = iteratively_request_code(prompt, temperature=temperature, max_tokens=256, frequency_penalty=0.8,
-                                    presence_penalty=0.4, stop=['\n\n\n', '"""'])
+                                    presence_penalty=0.4, stop=['\n\n\n', '"""'], best_of=3)
     return code
