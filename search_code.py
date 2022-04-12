@@ -20,6 +20,7 @@ search_model = RobertaModel.from_pretrained(model_path).to(device)
 
 
 def preprocess(source, lang):
+    '''remove `lang` comments from source code'''
     # remove extra new lines
     source = re.sub("\n+", "\n", source)
     if lang in ['python']:

@@ -1,5 +1,6 @@
 openai==0.15.0
 python-dotenv==0.19.2
+rapidfuzz>=2.0.8
 fastapi
 uvicorn[standard]
 torch
