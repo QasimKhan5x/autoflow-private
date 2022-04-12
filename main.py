@@ -105,7 +105,7 @@ async def commit_message(data: Prompt):
 
 
 @app.post('/detect-defect')
-async def detect_defect(data: Prompt):
+async def defects(data: Prompt):
     print(data)
     return {'status': 'ok', 'output': detect_defect(data.prompt)}
 
