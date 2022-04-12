@@ -469,5 +469,5 @@ def complete_code(code, task='', context=''):
     else:
         temperature = 0.2
     code = iteratively_request_code(prompt, temperature=temperature, max_tokens=256, frequency_penalty=0.8,
-                                    presence_penalty=0.4, stop=['\n\n\n', '"""'], best_of=3)
+                                    presence_penalty=0.4, stop=['\n\n\n', '"""'])
     return code

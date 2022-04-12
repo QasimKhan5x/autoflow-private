@@ -121,7 +121,7 @@ async def generate_code(data: Prompt):
     print(data)
     return {'status': 'ok',
             'output': iteratively_request_code(prompt=f'"""{data.prompt}"""',
-                                               temperature=0.6,
+                                               temperature=0.3,
                                                frequency_penalty=0.5,
                                                presence_penalty=0.5,
                                                max_tokens=256,
