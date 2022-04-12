@@ -215,7 +215,7 @@ def get_original_code_segment(query, input_json, lang):
     '''Use fuzzy string matching to find the code segment
     in the original code using the preprocessed code segment
     found after semantic search'''
-    code_segment = search_for_code_segment(query)
+    code_segment = search_for_code_segment(query, lang=lang)
     lines = []
     for program in input_json:
         if not isinstance(program, dict):

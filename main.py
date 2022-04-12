@@ -5,7 +5,7 @@ from classify_intent import get_task_from_query
 from code_gen import iteratively_request_code
 from commit_bert import functions
 from refactor_and_defect import detect_defect, refine
-from search_code import search_for_code
+from search_code import get_original_code_segment
 from server_models import (API_Req, Code_Task, IntentAnalysis, Prompt,
                            Prompt_Language, QueryInfo, SearchCode)
 from templates import (code2docstring, code2nl, code2ut, complete_code,
@@ -28,19 +28,21 @@ app = FastAPI()
 
 
 @app.post('/code2nl')
-async def codeToNl(data: Prompt_Language):
+async def codeToNl(data: Prompt):
     print(data)
-    return {'status': 'ok', 'output': code2nl(data.prompt, data.language)}
+    return {'status': 'ok', 'output': code2nl(data.prompt)}
 
 
 @app.post('/fix_bugs')
 async def FixBugs(data: Prompt_Language):
+    # TODO: add language & context
     print(data)
     return {'status': 'ok', 'output': fix_bugs(data.prompt, data.language)}
 
 
 @app.post('/explain_error')
 async def GetErrorExplanation(data: Prompt):
+    # TODO: add error msg & context
     print(data)
     return {'status': 'ok', 'output': get_error_explanation(data.prompt)}
 
@@ -64,13 +66,15 @@ async def Code2DocString(data: Prompt):
 
 
 @app.post('/code2ut')
-async def Code2DUnitTest(data: Prompt_Language):
+async def Code2UnitTest(data: Prompt_Language)
+    # TODO: add language & context
     print(data)
     return {'status': 'ok', 'output': code2ut(data.prompt, data.language)}
 
 
 @app.post('/complete_code')
 async def CodeCompletion(data: Code_Task):
+    # TODO: add context
     print(data)
     return {'status': 'ok', 'output': complete_code(data.code, data.task)}
 
@@ -113,7 +117,8 @@ async def defects(data: Prompt):
 @app.post('/search-code')
 async def search_code(data: SearchCode):
     print(data.code)
-    return {'status': 'ok', 'output': search_for_code(data.prompt, input_json=data.code, recreate=data.recreate)}
+    # TODO: add language
+    return {'status': 'ok', 'output': get_original_code_segment(data.prompt, input_json=data.code)}
 
 
 @app.post('/magic')
@@ -121,11 +126,11 @@ async def generate_code(data: Prompt):
     print(data)
     return {'status': 'ok',
             'output': iteratively_request_code(prompt=f'"""{data.prompt}"""',
-                                               temperature=0.3,
+                                               temperature=0.2,
                                                frequency_penalty=0.5,
                                                presence_penalty=0.5,
                                                max_tokens=256,
-                                               stop=['\n\n\n'],
+                                               stop=['\n\n'],
                                                best_of=3)}
 
 
