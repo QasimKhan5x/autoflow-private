@@ -4,7 +4,7 @@ import inspect
 import json
 import re
 
-from code_gen import get_code, iteratively_request_code
+from code_gen import iteratively_request_code
 
 
 def get_comment(language, ml=True):
@@ -67,7 +67,7 @@ def get_api_request_code(api_name, task, params, token=None):
     prompt = get_api_template(api_name, task, params, token)
     code = iteratively_request_code(prompt, max_tokens=64, temperature=0.2,
                                     presence_penalty=0.5, frequency_penalty=0.5,
-                                    stop=['"""', '\n\n\n'], best_of=3)
+                                    stop=['"""', '\n\n\n'])
     return code
 
 
@@ -174,7 +174,7 @@ def nl2sql(table_names, col_names, task, sql_engine="MySQL"):
     prompt = get_sql_generation_template(
         table_names, col_names, task, sql_engine)
     sql = iteratively_request_code(prompt, max_tokens=256, temperature=0.2,
-                                   stop=['#', '\n\n', ';', '"""'], best_of=3)
+                                   stop=['#', '\n\n', ';', '"""'])
     sql = "SELECT" + sql
     return sql
 
@@ -274,7 +274,7 @@ def get_error_explanation_template(function):
 def get_error_explanation(function):
     prompt = get_error_explanation_template(function)
     code = iteratively_request_code(prompt, temperature=0.2, stop=['#', '"""', '//', '/*'],
-                                    max_tokens=256, frequency_penalty=1, best_of=5)
+                                    max_tokens=256, frequency_penalty=1)
     return code
 
 
@@ -336,11 +336,11 @@ def fix_bugs(function, language):
     fn_header = template[1]
     temperature = 0
     code = iteratively_request_code(prompt, max_tokens=512, frequency_penalty=0.4,
-                                    temperature=temperature, stop=stop, best_of=3)
+                                    temperature=temperature, stop=stop)
     while code.strip() == '':
         temperature += 0.1
         code = iteratively_request_code(prompt, max_tokens=512, frequency_penalty=0.4,
-                                        temperature=temperature, stop=stop, best_of=3)
+                                        temperature=temperature, stop=stop)
     fixed_code = fn_header + "\n" + code
     return fixed_code
 
@@ -499,12 +499,12 @@ def code2ut(function, language):
     prompt += get_unit_tests_template(function, language)
     temperature = 0
     code = iteratively_request_code(prompt, max_tokens=256, frequency_penalty=0.1, presence_penalty=0.1,
-                                    temperature=temperature, stop=['#', '//', '/*'], best_of=3)
+                                    temperature=temperature, stop=['#', '//', '/*'])
     while code.strip() == '':
         temperature += .1
         code = iteratively_request_code(prompt, max_tokens=256, frequency_penalty=0.1,
                                         presence_penalty=0.1, temperature=temperature,
-                                        stop=['#', '"""', '//', '/*'], best_of=3)
+                                        stop=['#', '"""', '//', '/*'])
     return code
 
 

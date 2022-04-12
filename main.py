@@ -3,14 +3,15 @@ from fastapi import FastAPI
 
 from classify_intent import get_task_from_query
 from code_gen import iteratively_request_code
-from search_code import search_for_code
+from commit_bert import functions
 from refactor_and_defect import detect_defect, refine
+from search_code import search_for_code
 from server_models import (API_Req, Code_Task, IntentAnalysis, Prompt,
                            Prompt_Language, QueryInfo, SearchCode)
 from templates import (code2docstring, code2nl, code2ut, complete_code,
                        fix_bugs, get_api_request_code, get_error_explanation,
                        get_oneliner, nl2sql, sql2nl)
-from commit_bert import functions
+
 '''
     code2nl, ☑️
     fix_bugs, ☑️
@@ -96,6 +97,7 @@ async def Refine(data: Prompt):
     print(data)
     return {'status': 'ok', 'output': refine(data.prompt)}
 
+
 @app.post('/commit-message')
 async def commit_message(data: Prompt):
     print(data)
@@ -103,7 +105,7 @@ async def commit_message(data: Prompt):
 
 
 @app.post('/detect-defect')
-async def Api_Request(data: Prompt):
+async def detect_defect(data: Prompt):
     print(data)
     return {'status': 'ok', 'output': detect_defect(data.prompt)}
 
@@ -114,9 +116,8 @@ async def search_code(data: SearchCode):
     return {'status': 'ok', 'output': search_for_code(data.prompt, input_json=data.code, recreate=data.recreate)}
 
 
-
 @app.post('/magic')
-async def Api_Request(data: Prompt):
+async def generate_code(data: Prompt):
     print(data)
     return {'status': 'ok',
             'output': iteratively_request_code(prompt=f'"""{data.prompt}"""',

@@ -18,7 +18,6 @@ search_model = RobertaModel.from_pretrained(model_path).to(device)
 
 
 def create_embeddings(input_json, seq_length):
-    print('its working........................')
     '''Create code embeddings for user code base'''
     segments = {}
     # First, take as input a json of programs and file paths
