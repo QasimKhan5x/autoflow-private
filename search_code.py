@@ -189,7 +189,7 @@ def get_code_from_hits(hits):
 
 
 def search_for_code_segment(query, lang='python', top_k=1,
-                            threshold=0.4, recreate=False, input_json=None):
+                            threshold=0.4, recreate=True, input_json=None):
     '''
     Pass a query string
     Return a JSON array with intended code and its filepath
