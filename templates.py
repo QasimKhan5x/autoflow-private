@@ -26,31 +26,6 @@ def get_comment(language, ml=True):
             return '//'
 
 
-"""API Call
-
-```
-'''
-Send a request to the <API_Name> API to <task> using the following parameters: 
-<params_dict>
-Use the following API token header: <token>
-'''
-```
-
-**Stop**
-
-
-*   '''
-*   \n\n
-
-**Parameters**
-*   temperature=0
-*   presence_penalty & frequency_penalty = 0.5
-*   max_tokens=128
-
-### Optimal Parameters for this template
-"""
-
-
 def get_api_template(api_name, task, params, token=None):
     template = f'"""\n'
     template += f'Send a request to the {api_name} API to {task} using the following parameters:\n'
@@ -71,34 +46,29 @@ def get_api_request_code(api_name, task, params, token=None):
     return code
 
 
-"""SQL Queries
-
-### SQL Explanation
-
-**Explanation**
-
-```
-<query>
--- Explanation of the above query in human readable format
---
-```
-
-**Stopwords**
-
-- #
-- \n\n
-- SELECT
-- '''
-
-
-**Parameters**
-- max_tokens = 256
-- temperature = 0.4
-"""
-
-
 def get_sql_explanation_template(query):
-    template = """<query>
+    template = """SELECT DISTINCT department.name
+    FROM department
+    JOIN employee ON department.id = employee.department_id
+    JOIN salary_payments ON employee.id = salary_payments.employee_id
+    WHERE salary_payments.date BETWEEN '2020-06-01' AND '2020-06-30'
+    GROUP BY department.name
+    HAVING COUNT(employee.id) > 10;
+    -- Explanation of the above query in human readable format
+    -- Select the name of each department that has more than 10 employees
+    -- who were paid between June 1st and June 30th
+    -- Join the tables together
+    -- Group by the department name
+    -- Having the count of employees in each department is greater than 10
+
+    SELECT * FROM albums
+    WHERE ArtistId = (SELECT ArtistId FROM artists WHERE Name = 'Adele')
+    AND Title = 'Hello World'
+    -- Explanation of the above query in human readable format
+    -- Select all the albums that are by the artist 'Adele'
+    -- and are titled 'Hello World'
+    
+    <query>
     -- Explanation of the above query in human readable format
     --"""
     template = inspect.cleandoc(template)
@@ -130,28 +100,6 @@ def sql2nl(query):
     return explanation
 
 
-"""### SQL Generation
-
-**Stopwords**
-
-- #
-- \-\-
-- ;
-- '''
-
-```
-'''
-Table <table name>, columns = <list of columns>
-.
-.
-.
-
-Create a <SQL Engine> query to <task>
-'''
-```
-"""
-
-
 def get_sql_generation_template(table_names, col_names, task, sql_engine="MySQL"):
     if len(table_names) < 1:
         print("ERROR: table_names must contain atleast one table")
@@ -159,109 +107,93 @@ def get_sql_generation_template(table_names, col_names, task, sql_engine="MySQL"
     if len(table_names) != len(col_names):
         print("ERROR: len(table_names) must equal len(col_names)")
         return ''
-    template = '"""\n'
+    template = '''"""
+    Table albums, columns = [AlbumId, Title, ArtistId]
+    Table artists, columns = [ArtistId, Name]
+    Table media_types, columns = [MediaTypeId, Name]
+    Table playlists, columns = [PlaylistId, Name]
+    Table playlist_track, columns = [PlaylistId, TrackId]
+    Table tracks, columns = [TrackId, Name, AlbumId, MediaTypeId, GenreId, Composer, Milliseconds, Bytes, UnitPrice]
+
+    Create a MySQL query for all albums by Adele from her album called Hello World"""
+    query = """SELECT * FROM albums
+                JOIN artists ON albums.ArtistId = artists.ArtistId
+                WHERE artists.Name = 'Adele' AND albums.Title = 'Hello World'"""
+    
+    """'''
+    template = inspect.cleandoc(template)
     # preprocess the query
-    for i in range(len(table_names)):
-        tb_name = table_names[i]
+    for i, table_name in enumerate(table_names):
         cols = col_names[i]
-        template += f'Table {tb_name}, columns = {cols}\n'
+        template += f'Table {table_name}, columns = {cols}\n'
     template += f'\nCreate a {sql_engine} query to {task}\n'
-    template += '"""\nSELECT'
+    template += '"""\nquery = """SELECT'
     return template
 
 
 def nl2sql(table_names, col_names, task, sql_engine="MySQL"):
     prompt = get_sql_generation_template(
         table_names, col_names, task, sql_engine)
-    sql = iteratively_request_code(prompt, max_tokens=256, temperature=0.2,
+    sql = iteratively_request_code(prompt, max_tokens=256, temperature=0.1,
                                    stop=['#', '\n\n', ';', '"""'])
     sql = "SELECT" + sql
     return sql
 
 
-"""## Code to Natural Language Explanation (Except SQL)
+def get_code2nl_template(code):
+    prompt = '''class Log:
+    def __init__(self, path):
+        dirname = os.path.dirname(path)
+        os.makedirs(dirname, exist_ok=True)
+        f = open(path, "a+")
 
-**Explanation**
+        # Check that the file is newline-terminated
+        size = os.path.getsize(path)
+        if size > 0:
+            f.seek(size - 1)
+            end = f.read(1)
+            if end != "\\n":
+                f.write("\\n")
+        self.f = f
+        self.path = path
 
-```
-<Natural Language statement>
-<Code to be explained>
--- <Natural Language Statement indicating start of explanation>
-```
+    def log(self, event):
+        event["_event_id"] = str(uuid.uuid4())
+        json.dump(event, self.f)
+        self.f.write("\\n")
 
-**Stopwords**
+    def state(self):
+        state = {"complete": set(), "last": None}
+        for line in open(self.path):
+            event = json.loads(line)
+            if event["type"] == "submit" and event["success"]:
+                state["complete"].add(event["id"])
+                state["last"] = event
+        return state'''
 
-- \<multline_ending_comment_symbol>
+    exp = '''\n\n"""
+Here's what the above code is doing:
+1. The constructor creates a directory for the log file if it doesn't exist.
+2. The log() method writes a JSON-encoded event to the log file.
+3. The state() method returns a dictionary with the set of complete tasks and the most recent event.
+"""'''
+    prompt += exp
+    prompt += '''\n
+<code>
 
-*e.g. Python= ''', C/C++/Java = */, HTML = -->, etc.*
+"""Here's what the above code is doing:
+1.'''
 
-
-
-**Parameters**
-- temperature=0.3,
-- max_tokens = 100,
-- frequency_penalty=0.2
-
-#### Recommendations:
-
-##### 1. If code is a function, the function header should have a meaningful name
-
-##### 2. Test cases and comments can be provided for more accurate description
-
-##### 3. Simple and refactored codes produce better explanation than complex ones
-
-#### **prompt** :
-
-```
-'''<comment start> Code excerpt and explanation.<comment end>
-<comment start>Excerpt:
-<code><comment end>
-
-<comment start>Explanation:
-'''
-```
-"""
-
-
-def get_code2nl_template(code, language):
-    prompt = '''<comment start> Code excerpt and explanation.<comment end>
-    <comment start>Excerpt:
-    <code><comment end>
-
-    <comment start>Explanation:
-    '''
-    prompt = inspect.cleandoc(prompt)
-    ml_comment = get_comment(language)
-    prompt = re.sub("<comment start>", ml_comment[0], prompt)
-    prompt = re.sub("<comment end>", ml_comment[1], prompt)
     prompt = re.sub("<code>", code, prompt)
-
     return prompt
 
 
-def code2nl(code, language):
-    prompt = get_code2nl_template(code, language)
+def code2nl(code):
+    prompt = get_code2nl_template(code)
     code = iteratively_request_code(
-        prompt, temperature=0.3, max_tokens=256, frequency_penalty=0.2, stop=['"""', '*/'])
+        prompt, temperature=0.3, max_tokens=128, frequency_penalty=0.2, stop=['"""', '*/', '#'])
+    code = "1." + code
     return code
-
-
-"""Bug Fixing
-
-*   [Can OpenAI Codex Debug Its Own Code?](https://www.youtube.com/watch?v=Pkp1MRFGUVo)
-*   [Automatic Program Repair with OpenAI’s Codex
-](https://arxiv.org/pdf/2111.03922.pdf)
-
-### Error Explanation
-
-```
-<function>
-
-'''The function above does not work as intended.
-The following corrections are needed:
-1.
-```
-"""
 
 
 def get_error_explanation_template(function):
@@ -276,20 +208,6 @@ def get_error_explanation(function):
     code = iteratively_request_code(prompt, temperature=0.2, stop=['#', '"""', '//', '/*'],
                                     max_tokens=256, frequency_penalty=1)
     return code
-
-
-"""Fix Bugs in Functions
-
-```
-<cmtStart> Fix bugs in the following function <cmtEnd>
-<funcHeader>
-<funcBody>
-
-<cmtStart> Fixed function <cmtEnd>
-<funcHeader>
-```
-It is recommended that the function has a docstring
-"""
 
 
 def get_fix_bugs_template(function, language, get_fn_header=False):
@@ -307,9 +225,36 @@ def get_fix_bugs_template(function, language, get_fn_header=False):
         docstring += body[i] + '\n'
     cmt_start, cmt_end = get_comment(language)
 
-    template = f'{cmt_start} Fix bugs in the below function {cmt_end}\n'
+    template = '''"""Fix bugs in the below code"""
+
+import Random
+a = random.randint(1,12)
+b = random.randint(1,12)
+for i in range(10):
+    question = "What is "+a+" x "+b+"? "
+    answer = input(question)
+    if answer = a*b
+        print (Well done!)
+    else:
+        print("No.")
+    
+"""Fixed Code"""
+import random
+a = random.randint(1,12)
+b = random.randint(1,12)
+for i in range(10):
+    question = "What is "+str(a)+" x "+str(b)+"? "
+    answer = input(question)
+    if answer == str(a*b):
+        print ("Well done!")
+    else:
+        print("No.")
+    
+'''
+
+    template = f'{cmt_start}Fix bugs in the below code{cmt_end}\n'
     template += function + "\n\n"
-    template += f'{cmt_start} Fixed function {cmt_end}\n'
+    template += f'{cmt_start}Fixed Code{cmt_end}\n'
     template += header
     if docstring:
         template += f"\n{docstring}"
@@ -335,44 +280,14 @@ def fix_bugs(function, language):
     prompt += template[0]
     fn_header = template[1]
     temperature = 0
-    code = iteratively_request_code(prompt, max_tokens=512, frequency_penalty=0.4,
+    code = iteratively_request_code(prompt, max_tokens=256, frequency_penalty=0.4,
                                     temperature=temperature, stop=stop)
     while code.strip() == '':
         temperature += 0.1
-        code = iteratively_request_code(prompt, max_tokens=512, frequency_penalty=0.4,
+        code = iteratively_request_code(prompt, max_tokens=256, frequency_penalty=0.4,
                                         temperature=temperature, stop=stop)
     fixed_code = fn_header + "\n" + code
     return fixed_code
-
-
-"""## Write Comments/Docstring for Code
-
-**Explanation**
-
-```
-<Function>
-<Natural language statement indicating start of a docstring>
--- <Generated docstring>
-```
-
-**Stopwords**
-
-- \"\"\" (ending mult-line comment symbol of Python)
-- #
-
-**Parameters**
-- temperature = 0.20,
-- max_tokens = 150,
-- frequency_penalty = 0.50
-
-#### **prompt** :
-
-```
-'''<code>
-# Summary of above function with an elaborate, high quality docstring:
-'''
-```
-"""
 
 
 def get_code2docstring_template(code):
@@ -385,8 +300,8 @@ def get_code2docstring_template(code):
 
 def code2docstring(code):
     prompt = get_code2docstring_template(code)
-    code = iteratively_request_code(prompt, temperature=0.2, max_tokens=256,
-                                    frequency_penalty=0.5, stop=['"""', '/*'])
+    code = iteratively_request_code(prompt, temperature=0.2, max_tokens=256, presence_penalty=0.2,
+                                    frequency_penalty=0.3, stop=['"""', '/*', '\n\n'])
     return code
 
 
