@@ -4,7 +4,7 @@ import inspect
 import json
 import re
 
-from code_gen import iteratively_request_code
+from code_gen import iteratively_request_code, get_code
 
 
 def get_comment(language, ml=True):
@@ -414,19 +414,19 @@ def get_unit_tests_template(function, language, context=None):
 
 
 def code2ut(function, language, context=None):
-    if 'python' in language.lower():
+    if 'py' in language.lower():
         prompt = "Python 3\n"
     else:
         prompt = f"{language}\n"
     prompt += get_unit_tests_template(function, language, context)
     temperature = 0
-    code = iteratively_request_code(prompt, max_tokens=256, frequency_penalty=0.1, presence_penalty=0.1,
-                                    temperature=temperature, stop=['#', '//', '/*'])
+    code = get_code(prompt, max_tokens=256, frequency_penalty=0.1, presence_penalty=0.1,
+                    temperature=temperature, stop=['#', '//', '/*'])
     while code.strip() == '':
         temperature += .1
-        code = iteratively_request_code(prompt, max_tokens=256, frequency_penalty=0.1,
-                                        presence_penalty=0.1, temperature=temperature,
-                                        stop=['#', '"""', '//', '/*'])
+        code = get_code(prompt, max_tokens=256, frequency_penalty=0.1,
+                        presence_penalty=0.1, temperature=temperature,
+                        stop=['#', '"""', '//', '/*'])
     return code
 
 

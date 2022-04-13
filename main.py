@@ -3,9 +3,9 @@ from fastapi import FastAPI
 
 from classify_intent import get_task_from_query
 from code_gen import iteratively_request_code
-# from commit_bert import functions
-# from refactor_and_defect import detect_defect, refine
-# from search_code import get_original_code_segment
+from commit_bert import functions
+from refactor_and_defect import detect_defect, refine
+from search_code import get_original_code_segment
 
 
 from server_models import (API_Req, Code_Task, Code_Task_Context, IntentAnalysis, Prompt, Prompt_Context,
@@ -100,29 +100,29 @@ async def Api_Request(data: API_Req):
     return {'status': 'ok', 'output': get_api_request_code(data.api_name, data.task, data.params, data.token)}
 
 
-# @app.post('/refine')
-# async def Refine(data: Prompt):
-#     print(data)
-#     return {'status': 'ok', 'output': refine(data.prompt)}
+@app.post('/refine')
+async def Refine(data: Prompt):
+    print(data)
+    return {'status': 'ok', 'output': refine(data.prompt)}
 
 
-# @app.post('/commit-message')
-# async def commit_message(data: Prompt):
-#     print(data)
-#     return {'status': 'ok', 'output': functions.predict_message(data.prompt)}
+@app.post('/commit-message')
+async def commit_message(data: Prompt):
+    print(data)
+    return {'status': 'ok', 'output': functions.predict_message(data.prompt)}
 
 
-# @app.post('/detect-defect')
-# async def defects(data: Prompt):
-#     print(data)
-#     return {'status': 'ok', 'output': detect_defect(data.prompt)}
+@app.post('/detect-defect')
+async def defects(data: Prompt):
+    print(data)
+    return {'status': 'ok', 'output': detect_defect(data.prompt)}
 
 
-# @app.post('/search-code')
-# async def search_code(data: SearchCode_Language):
-#     print(data.code)
-#     # TODO: add language
-#     return {'status': 'ok', 'output': get_original_code_segment(data.prompt, input_json=data.code, lang=data.language)}
+@app.post('/search-code')
+async def search_code(data: SearchCode_Language):
+    print(data.code)
+    # TODO: add language
+    return {'status': 'ok', 'output': get_original_code_segment(data.prompt, input_json=data.code, lang=data.language)}
 
 
 @app.post('/magic')

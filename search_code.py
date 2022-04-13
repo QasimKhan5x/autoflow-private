@@ -23,7 +23,7 @@ def preprocess(source, lang):
     '''remove `lang` comments from source code'''
     # remove extra new lines
     source = re.sub("\n+", "\n", source)
-    if lang in ['python']:
+    if lang.lower() in ['py']:
         """
         Returns 'source' minus comments and docstrings.
         """
@@ -215,7 +215,7 @@ def get_original_code_segment(query, input_json, lang):
     '''Use fuzzy string matching to find the code segment
     in the original code using the preprocessed code segment
     found after semantic search'''
-    code_segment = search_for_code_segment(query, lang=lang)
+    code_segment = search_for_code_segment(query, input_json=input_json, lang=lang)
     lines = []
     for program in input_json:
         if not isinstance(program, dict):
@@ -224,7 +224,13 @@ def get_original_code_segment(query, input_json, lang):
         # split by code segments separated by more than 2 newlines
         segments = re.split(r'\n{2,}', content)
         lines.extend(segments)
-    return extractOne(code_segment, lines, score_cutoff=0.7)[0]
+    print(code_segment)
+    print(len(lines))
+    result = extractOne(code_segment, lines, score_cutoff=0.5)
+    if result != None:
+        return result[0]
+    else:
+        return ''
 
 
 if __name__ == "__main__":
