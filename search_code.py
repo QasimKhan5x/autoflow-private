@@ -215,17 +215,16 @@ def get_original_code_segment(query, input_json, lang):
     '''Use fuzzy string matching to find the code segment
     in the original code using the preprocessed code segment
     found after semantic search'''
-    code_segment = search_for_code_segment(query, input_json=input_json, lang=lang)
+    code_segment = search_for_code_segment(
+        query, input_json=input_json, lang=lang)
     lines = []
     for program in input_json:
         if not isinstance(program, dict):
             program = dict(program)
         content = program['content']
         # split by code segments separated by more than 2 newlines
-        segments = re.split(r'\n{2,}', content)
+        segments = re.split(r'\s{2,}', content)
         lines.extend(segments)
-    print(code_segment)
-    print(len(lines))
     result = extractOne(code_segment, lines, score_cutoff=0.5)
     if result != None:
         return result[0]

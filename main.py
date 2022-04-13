@@ -6,12 +6,10 @@ from code_gen import iteratively_request_code
 from commit_bert import functions
 from refactor_and_defect import detect_defect, refine
 from search_code import get_original_code_segment
-
-
-from server_models import (API_Req, Code_Task, Code_Task_Context, IntentAnalysis, Prompt, Prompt_Context,
-                           Prompt_Language, Prompt_Language_Context, QueryInfo, SearchCode, SearchCode_Language)
-
-
+from server_models import (API_Req, Code_Task, Code_Task_Context,
+                           IntentAnalysis, Prompt, Prompt_Context,
+                           Prompt_Language, Prompt_Language_Context, QueryInfo,
+                           SearchCode, SearchCode_Language)
 from templates import (code2docstring, code2nl, code2ut, complete_code,
                        fix_bugs, get_api_request_code, get_error_explanation,
                        get_oneliner, nl2sql, sql2nl)
@@ -122,6 +120,11 @@ async def defects(data: Prompt):
 async def search_code(data: SearchCode_Language):
     print(data.code)
     # TODO: add language
+    print('====================================================================')
+    result = get_original_code_segment(
+        data.prompt, input_json=data.code, lang=data.language)
+    print(result)
+    print('====================================================================')
     return {'status': 'ok', 'output': get_original_code_segment(data.prompt, input_json=data.code, lang=data.language)}
 
 
