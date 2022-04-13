@@ -212,27 +212,27 @@ def code2nl(code):
     return code
 
 
-def get_error_explanation_template(function, context='', error=''):
-    if context != '':
+def get_error_explanation_template(function, context=None, error=None):
+    if context != None:
         template = context + "\n\n"
         template += function + "\n\n"
     else:
         template = function + "\n\n"
     template += '"""The function above does not work as intended.\n'
-    if error != '':
+    if error != None:
         template += f'Here is the error message:\n{error}\n'
     template += 'The following corrections are needed:\n1.'
     return template
 
 
-def get_error_explanation(function, context='', error=''):
+def get_error_explanation(function, context=None, error=None):
     prompt = get_error_explanation_template(function, context, error)
     code = iteratively_request_code(prompt, temperature=0.2, stop=['#', '"""', '//', '/*'],
                                     max_tokens=256, frequency_penalty=1)
     return code
 
 
-def get_fix_bugs_template(function, language, get_fn_header=False, context=''):
+def get_fix_bugs_template(function, language, get_fn_header=False, context=None):
     function = function.strip()
     parts = function.split('\n')
     header = parts[0]
@@ -246,7 +246,7 @@ def get_fix_bugs_template(function, language, get_fn_header=False, context=''):
             i += 1
         docstring += body[i] + '\n'
     cmt_start, cmt_end = get_comment(language)
-    if context != '':
+    if context != None:
         template = context + "\n\n"
         template += '"""Fix bugs in the below code\n\n"""'
     else:
@@ -286,7 +286,7 @@ for i in range(10):
         return template
 
 
-def fix_bugs(function, language, context=''):
+def fix_bugs(function, language, context=None):
     function = function.strip()
     if 'python' in language.lower():
         stop = ['"""', '\n\n', '###']
@@ -395,13 +395,13 @@ def get_oneliner(function_code, language):
     return code
 
 
-def get_unit_tests_template(function, language, context=''):
+def get_unit_tests_template(function, language, context=None):
     parts = function.strip().split('\n')
     header = parts[0]
     body = '\n'.join(parts[1:])
     # get name of function i.e. the word that comes before a '('
     name = header.split('(')[0].split(' ')[-1]
-    if context != '':
+    if context != None:
         template = context + "\n\n"
         template += f'{header}\n{body}\n\n'
     else:
@@ -413,7 +413,7 @@ def get_unit_tests_template(function, language, context=''):
     return template
 
 
-def code2ut(function, language, context):
+def code2ut(function, language, context=None):
     if 'python' in language.lower():
         prompt = "Python 3\n"
     else:
@@ -430,7 +430,7 @@ def code2ut(function, language, context):
     return code
 
 
-def get_code_completion_template(code, task='', context=''):
+def get_code_completion_template(code, task=None, context=None):
     code_parts = code.split()
     if '/**' in code_parts[0]:
         docstring = code_parts[0] + "\n"
@@ -440,7 +440,7 @@ def get_code_completion_template(code, task='', context=''):
             i += 1
         docstring += code_parts[i] + "\n"
         function_code = code_parts[i+1:]
-        if context != '':
+        if context != None:
             template = context + "\n\n"
         else:
             template = ''
@@ -448,7 +448,7 @@ def get_code_completion_template(code, task='', context=''):
         template += docstring
         template += function_code
     else:
-        if context != '':
+        if context != None:
             template = context + "\n\n"
         else:
             template = ''
@@ -456,14 +456,17 @@ def get_code_completion_template(code, task='', context=''):
             template += '"""Complete the following function"""'
             template += code
         else:
-            template += f'"""Complete the following piece of code for {task}"""\n'
+            if task != None:
+                template += f'"""Complete the following piece of code"""\n'
+            else:
+                template += f'"""Complete the following piece of code for {task}"""\n'
             template += code
     return template
 
 
-def complete_code(code, task='', context=''):
+def complete_code(code, task=None, context=None):
     prompt = get_code_completion_template(code, task, context)
-    if task == '':
+    if task == None:
         print("WARNING: Task not provided. Resulting code may not be accurate")
         temperature = 0.6
     else:

@@ -3,11 +3,15 @@ from fastapi import FastAPI
 
 from classify_intent import get_task_from_query
 from code_gen import iteratively_request_code
-from commit_bert import functions
-from refactor_and_defect import detect_defect, refine
-from search_code import get_original_code_segment
-from server_models import (API_Req, Code_Task, IntentAnalysis, Prompt,
-                           Prompt_Language, QueryInfo, SearchCode)
+# from commit_bert import functions
+# from refactor_and_defect import detect_defect, refine
+# from search_code import get_original_code_segment
+
+
+from server_models import (API_Req, Code_Task, Code_Task_Context, IntentAnalysis, Prompt, Prompt_Context,
+                           Prompt_Language, Prompt_Language_Context, QueryInfo, SearchCode, SearchCode_Language)
+
+
 from templates import (code2docstring, code2nl, code2ut, complete_code,
                        fix_bugs, get_api_request_code, get_error_explanation,
                        get_oneliner, nl2sql, sql2nl)
@@ -34,17 +38,17 @@ async def codeToNl(data: Prompt):
 
 
 @app.post('/fix_bugs')
-async def FixBugs(data: Prompt_Language):
+async def FixBugs(data: Prompt_Language_Context):
     # TODO: add language & context
     print(data)
-    return {'status': 'ok', 'output': fix_bugs(data.prompt, data.language)}
+    return {'status': 'ok', 'output': fix_bugs(data.prompt, data.language, data.context)}
 
 
 @app.post('/explain_error')
-async def GetErrorExplanation(data: Prompt):
+async def GetErrorExplanation(data: Prompt_Context):
     # TODO: add error msg & context
     print(data)
-    return {'status': 'ok', 'output': get_error_explanation(data.prompt)}
+    return {'status': 'ok', 'output': get_error_explanation(data.prompt, data.context)}
 
 
 @app.post('/sql2nl')
@@ -66,17 +70,17 @@ async def Code2DocString(data: Prompt):
 
 
 @app.post('/code2ut')
-async def Code2UnitTest(data: Prompt_Language)
+async def Code2UnitTest(data: Prompt_Language_Context):
     # TODO: add language & context
     print(data)
-    return {'status': 'ok', 'output': code2ut(data.prompt, data.language)}
+    return {'status': 'ok', 'output': code2ut(data.prompt, data.language, data.context)}
 
 
 @app.post('/complete_code')
-async def CodeCompletion(data: Code_Task):
+async def CodeCompletion(data: Code_Task_Context):
     # TODO: add context
     print(data)
-    return {'status': 'ok', 'output': complete_code(data.code, data.task)}
+    return {'status': 'ok', 'output': complete_code(data.code, data.task, data.context)}
 
 
 @app.post('/nl2sql')
@@ -96,29 +100,29 @@ async def Api_Request(data: API_Req):
     return {'status': 'ok', 'output': get_api_request_code(data.api_name, data.task, data.params, data.token)}
 
 
-@app.post('/refine')
-async def Refine(data: Prompt):
-    print(data)
-    return {'status': 'ok', 'output': refine(data.prompt)}
+# @app.post('/refine')
+# async def Refine(data: Prompt):
+#     print(data)
+#     return {'status': 'ok', 'output': refine(data.prompt)}
 
 
-@app.post('/commit-message')
-async def commit_message(data: Prompt):
-    print(data)
-    return {'status': 'ok', 'output': functions.predict_message(data.prompt)}
+# @app.post('/commit-message')
+# async def commit_message(data: Prompt):
+#     print(data)
+#     return {'status': 'ok', 'output': functions.predict_message(data.prompt)}
 
 
-@app.post('/detect-defect')
-async def defects(data: Prompt):
-    print(data)
-    return {'status': 'ok', 'output': detect_defect(data.prompt)}
+# @app.post('/detect-defect')
+# async def defects(data: Prompt):
+#     print(data)
+#     return {'status': 'ok', 'output': detect_defect(data.prompt)}
 
 
-@app.post('/search-code')
-async def search_code(data: SearchCode):
-    print(data.code)
-    # TODO: add language
-    return {'status': 'ok', 'output': get_original_code_segment(data.prompt, input_json=data.code)}
+# @app.post('/search-code')
+# async def search_code(data: SearchCode_Language):
+#     print(data.code)
+#     # TODO: add language
+#     return {'status': 'ok', 'output': get_original_code_segment(data.prompt, input_json=data.code, lang=data.language)}
 
 
 @app.post('/magic')
