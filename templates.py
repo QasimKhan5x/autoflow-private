@@ -51,7 +51,7 @@ print(response.json())\n\n'''
     if token:
         template += f"Use the following API token header:\n{token}\n"
     template += '"""\nquery ='
-    return template
+    return 'query =' + template
 
 
 def get_api_request_code(api_name, task, params, token=None):
