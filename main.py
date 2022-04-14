@@ -129,10 +129,10 @@ async def search_code(data: SearchCode_Language):
 
 
 @app.post('/magic')
-async def generate_code(data: Prompt):
+async def generate_code(data: Prompt_Context):
     print(data)
     return {'status': 'ok',
-            'output': iteratively_request_code(prompt=f'"""{data.prompt}"""',
+            'output': iteratively_request_code(prompt=f'{data.context}\n\n"""{data.prompt}"""',
                                                temperature=0.2,
                                                frequency_penalty=0.5,
                                                presence_penalty=0.5,
@@ -144,7 +144,6 @@ async def generate_code(data: Prompt):
 @app.post('/intent')
 async def get_intent(query: IntentAnalysis):
     queryStr = query.query
-    print(queryStr)
     intent_list = get_task_from_query(queryStr)
     if len(intent_list) == 0:
         return {'status': 'ok', 'output': ['magic']}
