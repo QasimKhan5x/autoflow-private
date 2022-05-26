@@ -23,7 +23,11 @@ def preprocess(source, lang):
     '''remove `lang` comments from source code'''
     # remove extra new lines
     source = re.sub("\n+", "\n", source)
-    if lang.lower() in ['py']:
+    print('======================================')
+    print("PREPROCESS SOURCE")
+    print(source)
+    print('======================================')
+    if lang.lower() == 'py':
         """
         Returns 'source' minus comments and docstrings.
         """
@@ -223,7 +227,10 @@ def get_original_code_segment(query, input_json, lang):
             program = dict(program)
         content = program['content']
         # split by code segments separated by more than 2 newlines
+        print("===================================================")
+        print("SEGMENTS")
         segments = re.split(r'(\r?\n){2,}', content)
+        print('====================================================')
         lines.extend(segments)
     result = extractOne(code_segment, lines, score_cutoff=0.5)
     if result != None:

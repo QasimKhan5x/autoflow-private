@@ -121,16 +121,18 @@ async def search_code(data: SearchCode_Language):
     print(data.code)
     # TODO: add language
     print('====================================================================')
+    print("RESULT:")
     result = get_original_code_segment(
         data.prompt, input_json=data.code, lang=data.language)
     print(result)
     print('====================================================================')
-    return {'status': 'ok', 'output': get_original_code_segment(data.prompt, input_json=data.code, lang=data.language)}
+    return {'status': 'ok', 'output': result}
 
 
 @app.post('/magic')
 async def generate_code(data: Prompt):
     print(data)
+    # prompt = f'"""{data.prompt}"""'
     return {'status': 'ok',
             'output': iteratively_request_code(prompt=f'"""{data.prompt}"""',
                                                temperature=0.2,

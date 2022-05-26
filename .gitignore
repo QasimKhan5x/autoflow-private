@@ -1,5 +1,6 @@
 # pytorch tensors
 *.pt
+search/*
 
 *.crdownload
 *.bin
