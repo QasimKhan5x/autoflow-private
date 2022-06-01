@@ -247,5 +247,5 @@ if __name__ == "__main__":
                         help='path to json containing codebase files and their content')
 
     args = parser.parse_args()
-    result = search_for_code(args.query, input_json=args.input_json)
+    result = get_original_code_segment(args.query, input_json=args.input_json)
     print(result)
